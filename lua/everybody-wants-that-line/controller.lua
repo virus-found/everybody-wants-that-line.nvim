@@ -310,23 +310,24 @@ local function setup_autocmd(cb)
 		end
 	end)
 
-	--create_autocmd({
-	--	"ModeChanged",
-	--}, autocmd_group, function(args)
-	--	vim.pretty_print(args)
-	--end)
-
 	-- buffer number
-	-- buffer modified flag
 	-- diagnostics
 	create_autocmd({
 		"BufAdd",
-		"BufModifiedSet",
 		"CursorMoved",
 		"DiagnosticChanged",
 	}, autocmd_group, function()
 		cb()
 	end)
+
+	-- buffer modified flag (replaces removed BufModifiedSet event from Neovim 0.12+)
+	vim.api.nvim_create_autocmd("OptionSet", {
+		pattern = "modified",
+		callback = function()
+			cb()
+		end,
+		group = autocmd_group,
+	})
 
 	-- buffer number
 	-- branch name

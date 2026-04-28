@@ -40,6 +40,10 @@ function M.get_filepath(buf_id)
 			path_parts = cache[fullpath]
 		else
 			path_parts.full = split_path_and_filename(fullpath)
+			-- Strip leading "./" from full path
+			if path_parts.full.path then
+				path_parts.full.path = path_parts.full.path:gsub("^%./", "")
+			end
 			---@type string
 			local relative = vim.fn.bufname()
 			if #relative ~= 0 then
@@ -52,6 +56,13 @@ function M.get_filepath(buf_id)
 					relative = "./" .. relative
 				end
 				path_parts.relative = split_path_and_filename(relative)
+				-- Fix relative path: if path is only "./" move it into filename, otherwise strip leading "./"
+				if path_parts.relative.path == "./" then
+					path_parts.relative.path = path_parts.relative.filename
+					path_parts.relative.filename = ""
+				else
+					path_parts.relative.path = path_parts.relative.path:gsub("^%./", "")
+				end
 			end
 			cache[fullpath] = path_parts
 		end
